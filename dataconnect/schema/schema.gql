@@ -1,0 +1,274 @@
+# Firebase Data Connect GraphQL schema for TenderIQ
+
+# ---------- Table Types ----------
+type Organization @table {
+  name: String!
+  tenderCount: Int
+  scrapedAt: Timestamp
+}
+
+type Tender @table {
+  tenderRefNo: String
+  externalTenderId: String
+  title: String
+  ePublishedDate: Timestamp
+  closingDate: Timestamp
+  openingDate: Timestamp
+  documentsFolderUrl: String
+  tags: [String!]
+  location: String
+  tenderAmount: Float
+  tenderType: String
+  officialPortalUrl: String
+  organization: Organization! 
+  workItemDetail: WorkItemDetail 
+  aiRecommendation: AiRecommendation
+  riskAlertFlag: RiskAlertFlag 
+  basicDetail: TenderBasicDetail 
+  authority: TenderAuthority 
+  emdFeeDetail: EmdFeeDetail 
+  criticalDate: CriticalDate
+  financialRequirement: FinancialRequirement 
+  eligibilityCriterion: EligibilityCriterion
+  submissionInstruction: SubmissionInstruction
+  evaluationProcess: EvaluationProcess 
+  legalTerms: LegalTerm # Inferred via 
+  postAwardTracking: PostAwardTracking 
+  tenderFeeDetail: TenderFeeDetail 
+  paymentInstrument: PaymentInstrument 
+  coverInformation: CoverInformation 
+}
+
+type CoverInformation @table {
+  tender: Tender! 
+  coverNo: Int!
+  coverType: String
+  description: String
+  documentType: String
+}
+
+type CriticalDate @table {
+  tender: Tender! 
+  publishedDate: Timestamp
+  bidOpeningDate: Timestamp
+  docDownloadStartDate: Timestamp
+  docDownloadEndDate: Timestamp
+  clarificationStartDate: Timestamp
+  clarificationEndDate: Timestamp
+  bidSubmissionStartDate: Timestamp
+  bidSubmissionEndDate: Timestamp
+}
+
+type EmdFeeDetail @table {
+  tender: Tender! 
+  emdAmount: Float
+  emdExemptionAllowed: Boolean
+  emdFeeType: String
+  emdPercentage: String
+  emdPayableTo: String
+  emdPayableAt: String
+}
+
+type TenderFeeDetail @table {
+  tender: Tender! 
+  tenderFee: Float
+  feePayableTo: String
+  feePayableAt: String
+  feeExemptionAllowed: Boolean
+}
+
+type PaymentInstrument @table {
+  tender: Tender! 
+  instrumentType: String!
+}
+
+type TenderAuthority @table {
+
+  tender: Tender! 
+  name: String
+  address: String
+}
+
+type TenderBasicDetail @table {
+  tender: Tender! 
+  withdrawalAllowed: Boolean
+  tenderType: String
+  formOfContract: String
+  tenderCategory: String
+  noOfCovers: Int
+  generalEvalAllowed: Boolean
+  itemwiseEvalAllowed: Boolean
+  paymentMode: String
+  multiCurrencyBoq: Boolean
+  multiCurrencyFee: Boolean
+  twoStageBidding: Boolean
+}
+
+type WorkItemDetail @table {
+  tender: Tender! 
+  title: String
+  description: String
+  ndaPrequalification: String
+  remarks: String
+  tenderValue: Float
+  productCategory: String
+  subCategory: String
+  contractType: String
+  bidValidityDays: Int
+  periodOfWorkDays: Int
+  location: String
+  pincode: String
+  preBidMeetingPlace: String
+  preBidMeetingDate: String
+  allowNda: Boolean
+  allowPreferentialBidder: Boolean
+}
+
+type AiRecommendation @table {
+  tender: Tender! 
+  fitScore: Float
+  matchingCriteriaSummary: String
+  unmatchedCriteriaSummary: String
+  opportunityHighlights: String
+}
+
+type RiskAlertFlag @table {
+  tender: Tender! 
+  redFlags: String
+  orangeFlags: String
+  yellowFlags: String
+  notes: String
+}
+
+type TenderDocument @table {
+  tender: Tender! 
+  docName: String
+  docUrl: String
+  fileType: String
+  isMandatory: Boolean
+}
+
+type FinancialRequirement @table {
+  tender: Tender! 
+  estimatedContractValue: Float
+  costBaseScope: Float
+  taxes: Float
+  otherCharges: Float
+  bidSecurityAmount: Float
+  bidSecurityFormat: String
+  bidSecurityValidity: Int
+  documentFeeAmount: Float
+  documentFeeMode: String
+  performanceGuaranteePct: Float
+  performanceGuaranteeValue: Float
+  advancePaymentTerms: String
+  taxClauses: String
+}
+
+type EligibilityCriterion @table {
+  tender: Tender! 
+  minAnnualTurnover: Float
+  yearsConsidered: Int
+  similarContractsCount: Int
+  minValuePerContract: Float
+  similarWorkDefinition: String
+  volumeBenchmark: String
+  keyPersonnel: String
+  equipmentRequired: String
+  siteVisitRequired: Boolean
+  jvAllowed: Boolean
+  minJvShare: Float
+  litigationBlacklistHistory: String
+  financialEvidence: String
+}
+
+type SubmissionInstruction @table {
+  tender: Tender! 
+  submissionMode: String
+  envelopeStructure: String
+  allowedFileFormats: String
+  digitalSignatureRequired: Boolean
+  physicalSubmissionAddress: String
+  submissionDeadline: Timestamp
+  copiesRequired: Int
+  labelingInstructions: String
+  mandatoryChecklist: String
+  virusCertificationRequired: Boolean
+}
+
+type EvaluationProcess @table {
+  tender: Tender! 
+  evaluationMethod: String
+  technicalWeightage: Float
+  financialWeightage: Float
+  responsivenessCriteria: String
+  arithmeticCorrectionRules: String
+  bidCapacityFormula: String
+  negotiationAllowed: Boolean
+  reverseAuction: Boolean
+  awardCriteria: String
+  notificationTimeline: String
+}
+
+type LegalTerm @table {
+  tender: Tender! 
+  formOfContract: String
+  performanceReleaseConditions: String
+  penaltyClauses: String
+  forfeitureConditions: String
+  forceMajeure: String
+  disputeResolution: String
+  antiCorruptionClause: String
+  terminationConditions: String
+}
+
+type PostAwardTracking @table {
+  tender: Tender! 
+  advancePaymentSchedule: String
+  reportingFrequency: String
+  qualityTestingRequirements: String
+  paymentMilestones: String
+  retentionTerms: String
+  warrantyPeriodDays: Int
+  finalHandoverDate: Timestamp
+}
+
+type User @table {
+  fullName: String
+  email: String
+  company: Company!
+  profilePicUrl: String
+  preferences: UserPreference 
+  activity: UserActivity
+}
+
+type Company @table {
+  name: String
+  registeredEmail: String
+  gstin: String
+  contactNumber: String
+}
+
+type UserPreference @table {
+  user: User!
+  preferredCategories: [String!]
+  preferredLocations: [String!]
+  notificationEnabled: Boolean
+  language: String
+}
+
+type UserActivity @table {
+  user: User!
+  tendersFollowed: Int
+  tendersSubmitted: Int
+}
+
+type Notification @table {
+  user: User!
+  tender: Tender
+  message: String!
+  link: String
+  isRead: Boolean!
+  createdAt: Timestamp!
+}
+

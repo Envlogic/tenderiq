@@ -1,0 +1,12 @@
+specVersion: "v1"
+serviceId: "tenderiq-f763c-service"
+location: "asia-south1"
+schema:
+  source: "./schema"
+  datasource:
+    postgresql:
+      database: "tenderiq-f763c-database"
+      cloudSql:
+        instanceId: "tenderiq-f763c-instance"
+      # schemaValidation: "COMPATIBLE"
+connectorDirs: ["./connector"]

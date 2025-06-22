@@ -1,0 +1,8 @@
+name: default_connector
+description: Default connector for tenderiq_frontend
+version: 0.0.1
+publish_to: 'none'
+environment:
+  sdk: ">=3.7.2 <4.0.0"
+dependencies:
+  firebase_data_connect: ^0.1.5+1

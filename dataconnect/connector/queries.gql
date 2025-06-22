@@ -1,0 +1,227 @@
+query GetRecommendedTenders($limit: Int = 10, $offset: Int = 0) @auth(level: PUBLIC) {
+  tenders(limit: $limit, offset: $offset) {
+    id
+    title
+    tags
+    location
+    closingDate
+    tenderAmount
+    workItemDetail {
+      description
+    }
+  }
+}
+
+query GetWatchlistTenders($limit: Int = 15, $offset: Int = 0) @auth(level: PUBLIC) {
+  tenders(limit: $limit, offset: $offset) {
+    id
+    title
+    tags
+    location
+    closingDate
+    tenderAmount
+    workItemDetail {
+      description
+    }
+  }
+}
+
+query GetFollowedTenderCount($userId: UUID!) @auth(level: PUBLIC) {
+  user(id: $userId) {
+    activity {
+      tendersFollowed
+    }
+  }
+}
+
+query GetAllTenders($limit: Int = 15, $offset: Int = 0) @auth(level: PUBLIC) {
+  tenders(limit: $limit, offset: $offset) {
+    id
+    title
+    tags
+    location
+    closingDate
+    tenderAmount
+    workItemDetail {
+      description
+    }
+  }
+}
+
+query GetUserProfile($userId: UUID!) @auth(level: PUBLIC) {
+  user(id: $userId) {
+    id
+    fullName
+    email
+    profilePicUrl
+    company {
+      name
+    }
+    preferences {
+      preferredCategories
+      preferredLocations
+      notificationEnabled
+    }
+    activity {
+      tendersFollowed
+      tendersSubmitted
+    }
+  }
+}
+
+query GetNotifications($userId: UUID!) @auth(level: PUBLIC) {
+  notifications(
+    where: { user: { id: { eq: $userId } } }
+  ) {
+    id
+    message
+    isRead
+    createdAt
+    link
+  }
+}
+
+
+query GetTenderDetails($tenderId: UUID!, $docLimit: Int = 10, $docOffset: Int = 0) @auth(level: PUBLIC) {
+  tender(id: $tenderId) {
+    id
+    tags
+    location
+    openingDate
+    closingDate
+    tenderAmount
+    tenderType
+    officialPortalUrl
+
+    aiRecommendation {
+      fitScore
+      matchingCriteriaSummary
+      unmatchedCriteriaSummary
+      opportunityHighlights
+    }
+
+    riskAlertFlag {
+      redFlags
+      orangeFlags
+      yellowFlags
+    }
+
+    organization {
+      name
+    }
+
+    tenderRefNo
+
+    basicDetail {
+      withdrawalAllowed
+      formOfContract
+      noOfCovers
+      generalEvalAllowed
+      paymentMode
+      multiCurrencyFee
+    }
+
+    authority {
+      name
+      address
+    }
+
+    emdFeeDetail {
+      emdAmount
+      emdFeeType
+      emdPayableTo
+      emdPayableAt
+    }
+
+    workItemDetail {
+      title
+      description
+      ndaPrequalification
+      remarks
+      tenderValue
+      productCategory
+    }
+
+    criticalDate {
+      publishedDate
+      bidSubmissionStartDate
+      bidSubmissionEndDate
+      bidOpeningDate
+    }
+
+    financialRequirement {
+      estimatedContractValue
+      costBaseScope
+      taxes
+      otherCharges
+      bidSecurityAmount
+      bidSecurityFormat
+      bidSecurityValidity
+      documentFeeAmount
+      documentFeeMode
+      performanceGuaranteePct
+      performanceGuaranteeValue
+      advancePaymentTerms
+      taxClauses
+    }
+
+    eligibilityCriterion {
+      minAnnualTurnover
+      yearsConsidered
+      similarContractsCount
+      minValuePerContract
+      similarWorkDefinition
+      volumeBenchmark
+      keyPersonnel
+      equipmentRequired
+      siteVisitRequired
+      jvAllowed
+      minJvShare
+      litigationBlacklistHistory
+      financialEvidence
+    }
+
+    submissionInstruction {
+      submissionMode
+      envelopeStructure
+      allowedFileFormats
+      digitalSignatureRequired
+      physicalSubmissionAddress
+      copiesRequired
+      mandatoryChecklist
+      virusCertificationRequired
+    }
+
+    evaluationProcess {
+      evaluationMethod
+      technicalWeightage
+      financialWeightage
+      responsivenessCriteria
+      arithmeticCorrectionRules
+      bidCapacityFormula
+      negotiationAllowed
+      awardCriteria
+      notificationTimeline
+    }
+
+    legalTerms {
+      formOfContract
+      performanceReleaseConditions
+      penaltyClauses
+      forfeitureConditions
+      forceMajeure
+      disputeResolution
+      antiCorruptionClause
+      terminationConditions
+    }
+
+    postAwardTracking {
+      advancePaymentSchedule
+      reportingFrequency
+      qualityTestingRequirements
+      paymentMilestones
+      warrantyPeriodDays
+      finalHandoverDate
+    }
+  }
+}
