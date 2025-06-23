@@ -1,8 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen_ai_chat_ui/flutter_gen_ai_chat_ui.dart';
+import 'package:http/http.dart' as http;
 
 class Chatbot extends StatefulWidget {
-  const Chatbot({super.key});
+  final Map<String, dynamic>? data;
+  const Chatbot({super.key, this.data});
 
   @override
   State<Chatbot> createState() => _ChatbotState();
@@ -14,20 +17,59 @@ class _ChatbotState extends State<Chatbot> {
   final _aiUser = const ChatUser(id: 'ai', firstName: 'AI Assistant');
   bool _isLoading = false;
 
+  // Store chat history in memory
+  final List<ChatMessage> _chatHistory = [];
+
   Future<void> _handleSend(ChatMessage message) async {
     setState(() => _isLoading = true);
     _controller.addMessage(message);
+    _chatHistory.add(message);
 
-    // Simulated AI response
-    await Future.delayed(const Duration(seconds: 1));
-    _controller.addMessage(
-      ChatMessage(
-        text: "Placeholder response to \"${message.text}\".",
-        user: _aiUser,
-        createdAt: DateTime.now(),
-      ),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse(
+          'https://us-central1-tenderiq-f763c.cloudfunctions.net/ai_chatbot',
+        ),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'llmContext': widget.data, 'query': message.text}),
+      );
+      print(widget.data);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final aiText = data['response'] ?? 'No response.';
+        final aiMessage = ChatMessage(
+          text: aiText,
+          user: _aiUser,
+          createdAt: DateTime.now(),
+        );
+        _controller.addMessage(aiMessage);
+        _chatHistory.add(aiMessage);
+      } else {
+        _controller.addMessage(
+          ChatMessage(
+            text: 'AI error: ${response.body}',
+            user: _aiUser,
+            createdAt: DateTime.now(),
+          ),
+        );
+      }
+    } catch (e) {
+      _controller.addMessage(
+        ChatMessage(
+          text: 'Failed to connect to AI: $e',
+          user: _aiUser,
+          createdAt: DateTime.now(),
+        ),
+      );
+    }
     setState(() => _isLoading = false);
+  }
+
+  @override
+  void dispose() {
+    _controller.messages.clear(); // Clear chat history in controller
+    _chatHistory.clear();
+    super.dispose();
   }
 
   @override

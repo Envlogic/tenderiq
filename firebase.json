@@ -1,17 +1,32 @@
 {
   "hosting": {
     "public": "build/web",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
     "rewrites": [
       {
         "source": "**",
         "destination": "/index.html"
       }
+    ],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "Content-Security-Policy",
+            "value": "default-src 'self' blob: data: filesystem: https://*; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*; connect-src 'self' https://*; style-src 'self' 'unsafe-inline' https://*; img-src 'self' data: https://*; media-src 'self' blob: https://*;"
+          }
+        ]
+      }
     ]
   },
   "functions": {
-    "source": "functions",          
-    "runtime": "python310"         
+    "source": "functions",
+    "runtime": "python310"
   },
   "emulators": {
     "dataconnect": {
@@ -32,5 +47,8 @@
         }
       }
     }
+  },
+  "storage": {
+    "rules": "storage.rules"
   }
 }

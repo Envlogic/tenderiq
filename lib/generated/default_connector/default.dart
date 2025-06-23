@@ -2,6 +2,10 @@ library default_connector;
 import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'dart:convert';
 
+part 'log_manual_search.dart';
+
+part 'log_ai_suggestion_click.dart';
+
 part 'get_recommended_tenders.dart';
 
 part 'get_watchlist_tenders.dart';
@@ -16,6 +20,10 @@ part 'get_notifications.dart';
 
 part 'get_tender_details.dart';
 
+part 'get_ai_search_context.dart';
+
+part 'get_ai_suggestion_context.dart';
+
 
 
 
@@ -23,6 +31,16 @@ part 'get_tender_details.dart';
 
 
 class DefaultConnector {
+  
+  
+  LogManualSearchVariablesBuilder logManualSearch ({required String userId, required String queryText, required Timestamp timestamp, }) {
+    return LogManualSearchVariablesBuilder(dataConnect, userId: userId,queryText: queryText,timestamp: timestamp,);
+  }
+  
+  
+  LogAiSuggestionClickVariablesBuilder logAiSuggestionClick ({required String userId, required String queryText, required Timestamp timestamp, }) {
+    return LogAiSuggestionClickVariablesBuilder(dataConnect, userId: userId,queryText: queryText,timestamp: timestamp,);
+  }
   
   
   GetRecommendedTendersVariablesBuilder getRecommendedTenders () {
@@ -57,6 +75,16 @@ class DefaultConnector {
   
   GetTenderDetailsVariablesBuilder getTenderDetails ({required String tenderId, }) {
     return GetTenderDetailsVariablesBuilder(dataConnect, tenderId: tenderId,);
+  }
+  
+  
+  GetAiSearchContextVariablesBuilder getAiSearchContext ({required String userId, }) {
+    return GetAiSearchContextVariablesBuilder(dataConnect, userId: userId,);
+  }
+  
+  
+  GetAiSuggestionContextVariablesBuilder getAiSuggestionContext ({required String userId, }) {
+    return GetAiSuggestionContextVariablesBuilder(dataConnect, userId: userId,);
   }
   
 

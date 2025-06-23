@@ -9,52 +9,75 @@ class DiscoverSearchBar extends StatelessWidget {
   final TextEditingController controller;
   final Function(String) onChanged;
   final VoidCallback onDiscoverPressed;
+  final VoidCallback onFocus;
+  final bool isLoading;
 
   const DiscoverSearchBar({
     super.key,
     required this.controller,
     required this.onChanged,
     required this.onDiscoverPressed,
+    required this.onFocus,
+    required this.isLoading,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.search, color: Colors.grey),
-          const SizedBox(width: 8),
-          Expanded(
-            child: TextField(
-              controller: controller,
-              decoration: const InputDecoration(
-                hintText: 'AI Powered Search',
-                border: InputBorder.none,
-              ),
-              onChanged: onChanged,
-            ),
+    return Stack(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade300),
           ),
-          TextButton.icon(
-            onPressed: onDiscoverPressed,
-            icon: const Icon(Icons.auto_awesome, size: 18),
-            label: const Text("Discover"),
-            style: TextButton.styleFrom(
-              backgroundColor: Colors.blue.shade100,
-              foregroundColor: Colors.black,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
+          child: Row(
+            children: [
+              const Icon(Icons.search, color: Colors.grey),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Focus(
+                  onFocusChange: (hasFocus) {
+                    if (hasFocus) onFocus();
+                  },
+                  child: TextField(
+                    controller: controller,
+                    decoration: const InputDecoration(
+                      hintText: 'AI Powered Search',
+                      border: InputBorder.none,
+                    ),
+                    onChanged: onChanged,
+                  ),
+                ),
               ),
-            ),
+              TextButton.icon(
+                onPressed: onDiscoverPressed,
+                icon: const Icon(Icons.auto_awesome, size: 18),
+                label: const Text("Discover"),
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.blue.shade100,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+        if (isLoading)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: LinearProgressIndicator(minHeight: 3),
+          ),
+      ],
     );
   }
 }
@@ -104,8 +127,15 @@ class _DiscoverPageState extends State<DiscoverPage> {
   bool _isAiSuggesting = false;
   String? _aiSuggestError;
 
-  // Replace with actual userId fetching logic
-  String get _userId => 'demo-user-id';
+  // New: AI Context variables
+  Map<String, dynamic>? _aiSearchContext;
+  Map<String, dynamic>? _aiSuggestionContext;
+
+  // Use the same userId as in profile_page.dart
+  static const String _userId = '6763ec20-b327-4b1a-8e55-fbc42b02c184';
+
+  // Add this variable to track if suggestions have been triggered
+  bool _suggestionTriggered = false;
 
   void _openTenderDetail(
     BuildContext context,
@@ -125,6 +155,8 @@ class _DiscoverPageState extends State<DiscoverPage> {
   void initState() {
     super.initState();
     _futureTenders = _fetchAllTenders();
+    _fetchAISearchContext();
+    _fetchAISuggestionContext();
   }
 
   Future<List<GetAllTendersTenders>> _fetchAllTenders() async {
@@ -132,6 +164,43 @@ class _DiscoverPageState extends State<DiscoverPage> {
     final result = await builder.execute();
     _allTenders = result.data.tenders;
     return _allTenders;
+  }
+
+  // Fetch GetAISearchContext data using FirebaseDataConnect
+  Future<void> _fetchAISearchContext() async {
+    // print('Calling _fetchAISearchContext');
+    try {
+      final builder =
+          DefaultConnector.instance.getAiSearchContext(userId: _userId)
+            ..limit(25)
+            ..offset(0);
+      final result = await builder.execute();
+      setState(() {
+        _aiSearchContext = result.data.toJson();
+      });
+      // Print to console
+      // print('AISearchContext: ' + result.data.toJson().toString());
+    } catch (e) {
+      print('Error in _fetchAISearchContext: ' + e.toString());
+    }
+  }
+
+  // Fetch GetAISuggestionContext data using FirebaseDataConnect
+  Future<void> _fetchAISuggestionContext() async {
+    // print('Calling _fetchAISuggestionContext');
+    try {
+      final builder = DefaultConnector.instance.getAiSuggestionContext(
+        userId: _userId,
+      );
+      final result = await builder.execute();
+      setState(() {
+        _aiSuggestionContext = result.data.toJson();
+      });
+      // Print to console
+      // print('AISuggestionContext: ' + result.data.toJson().toString());
+    } catch (e) {
+      print('Error in _fetchAISuggestionContext: ' + e.toString());
+    }
   }
 
   List<TenderCard> _filteredTenderCards() {
@@ -178,13 +247,25 @@ class _DiscoverPageState extends State<DiscoverPage> {
       _aiSearchResults = [];
     });
     try {
+      if (_aiSearchContext == null) {
+        _aiSearchError = "AI Search Context not loaded.";
+        setState(() {
+          _isAiSearching = false;
+        });
+        return;
+      }
       final response = await http.post(
-        Uri.parse('https://us-central1-tenderiq-f763c.cloudfunctions.net/ai_search'),
+        Uri.parse(
+          'https://us-central1-tenderiq-f763c.cloudfunctions.net/ai_search',
+        ),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'userId': _userId, 'query': _searchController.text}),
+        body: jsonEncode({
+          'aiSearchContext': _aiSearchContext,
+          'query': _searchController.text,
+        }),
       );
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = jsonDecode(response.body.trim());
         if (data is List) {
           _aiSearchResults = List<Map<String, dynamic>>.from(data);
         } else {
@@ -203,16 +284,26 @@ class _DiscoverPageState extends State<DiscoverPage> {
 
   // ──────────────── AI SUGGEST ────────────────
   Future<void> _fetchAiSuggestions() async {
+    if (_isAiSuggesting) return;
     setState(() {
       _isAiSuggesting = true;
       _aiSuggestError = null;
       _aiSuggestions = [];
     });
     try {
+      if (_aiSuggestionContext == null) {
+        _aiSuggestError = "AI Suggestion Context not loaded.";
+        setState(() {
+          _isAiSuggesting = false;
+        });
+        return;
+      }
       final response = await http.post(
-        Uri.parse('https://us-central1-tenderiq-f763c.cloudfunctions.net/ai_suggestion'),
+        Uri.parse(
+          'https://us-central1-tenderiq-f763c.cloudfunctions.net/ai_suggestion',
+        ),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'userId': _userId}),
+        body: jsonEncode({'aiSuggestionContext': _aiSuggestionContext}),
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -232,12 +323,39 @@ class _DiscoverPageState extends State<DiscoverPage> {
     });
   }
 
+  void _onSearchBarFocus() {
+    if (!_suggestionTriggered) {
+      _fetchAiSuggestions();
+      _suggestionTriggered = true;
+    }
+  }
+
+  void _onDiscoverPressed() {
+    setState(() {
+      _aiSuggestions = [];
+      _suggestionTriggered = false;
+    });
+    _performAiSearch();
+  }
+
+  void _onSuggestionSelected(String suggestion) {
+    setState(() {
+      _searchController.text = '';
+      _searchQuery = '';
+    });
+    // Use a post-frame callback to avoid TextEditingController issues
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        _searchController.text = suggestion;
+        _searchQuery = suggestion;
+      });
+    });
+  }
+
   Widget _buildAiSuggestions() {
     if (_isAiSuggesting) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 8),
-        child: Center(child: CircularProgressIndicator()),
-      );
+      // Don't show anything here, progress is shown in search bar
+      return const SizedBox(height: 8);
     }
     if (_aiSuggestError != null) {
       return Padding(
@@ -249,14 +367,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
       );
     }
     if (_aiSuggestions.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: ElevatedButton.icon(
-          icon: const Icon(Icons.lightbulb),
-          label: const Text('AI Suggest'),
-          onPressed: _fetchAiSuggestions,
-        ),
-      );
+      return const SizedBox(height: 8);
     }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -268,11 +379,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                   (s) => ActionChip(
                     label: Text(s),
                     avatar: const Icon(Icons.search, size: 18),
-                    onPressed: () {
-                      _searchController.text = s;
-                      setState(() => _searchQuery = s);
-                      _performAiSearch();
-                    },
+                    onPressed: () => _onSuggestionSelected(s),
                   ),
                 )
                 .toList(),
@@ -335,7 +442,9 @@ class _DiscoverPageState extends State<DiscoverPage> {
               DiscoverSearchBar(
                 controller: _searchController,
                 onChanged: (value) => setState(() => _searchQuery = value),
-                onDiscoverPressed: _performAiSearch,
+                onDiscoverPressed: _onDiscoverPressed,
+                onFocus: _onSearchBarFocus,
+                isLoading: _isAiSuggesting,
               ),
               _buildAiSuggestions(),
               const SizedBox(height: 20),

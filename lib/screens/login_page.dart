@@ -34,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _login(BuildContext context, String userType) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('usertype', userType);
-    final destination = userType == 'admin' ? const AdminPage() : MainScreen();
+    final destination = userType == 'admin' ? AdminPage() : MainScreen();
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => destination),
       (route) => false,

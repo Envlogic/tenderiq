@@ -428,5 +428,229 @@ ref.execute();
 ref.subscribe(...);
 ```
 
+
+### GetAISearchContext
+#### Required Arguments
+```dart
+String userId = ...;
+DefaultConnector.instance.getAiSearchContext(
+  userId: userId,
+).execute();
+```
+
+#### Optional Arguments
+We return a builder for each query. For GetAISearchContext, we created `GetAISearchContextBuilder`. For queries and mutations with optional parameters, we return a builder class.
+The builder pattern allows Data Connect to distinguish between fields that haven't been set and fields that have been set to null. A field can be set by calling its respective setter method like below:
+```dart
+class GetAiSearchContextVariablesBuilder {
+  ...
+   GetAiSearchContextVariablesBuilder limit(int? t) {
+   _limit.value = t;
+   return this;
+  }
+  GetAiSearchContextVariablesBuilder offset(int? t) {
+   _offset.value = t;
+   return this;
+  }
+
+  ...
+}
+DefaultConnector.instance.getAiSearchContext(
+  userId: userId,
+)
+.limit(limit)
+.offset(offset)
+.execute();
+```
+
+#### Return Type
+`execute()` returns a `QueryResult<GetAISearchContextData, GetAISearchContextVariables>`
+```dart
+/// Result of an Operation Request (query/mutation).
+class OperationResult<Data, Variables> {
+  OperationResult(this.dataConnect, this.data, this.ref);
+  Data data;
+  OperationRef<Data, Variables> ref;
+  FirebaseDataConnect dataConnect;
+}
+
+/// Result of a query request. Created to hold extra variables in the future.
+class QueryResult<Data, Variables> extends OperationResult<Data, Variables> {
+  QueryResult(super.dataConnect, super.data, super.ref);
+}
+
+final result = await DefaultConnector.instance.getAiSearchContext(
+  userId: userId,
+);
+GetAISearchContextData data = result.data;
+final ref = result.ref;
+```
+
+#### Getting the Ref
+Each builder returns an `execute` function, which is a helper function that creates a `Ref` object, and executes the underlying operation.
+An example of how to use the `Ref` object is shown below:
+```dart
+String userId = ...;
+
+final ref = DefaultConnector.instance.getAiSearchContext(
+  userId: userId,
+).ref();
+ref.execute();
+
+ref.subscribe(...);
+```
+
+
+### GetAISuggestionContext
+#### Required Arguments
+```dart
+String userId = ...;
+DefaultConnector.instance.getAiSuggestionContext(
+  userId: userId,
+).execute();
+```
+
+
+
+#### Return Type
+`execute()` returns a `QueryResult<GetAISuggestionContextData, GetAISuggestionContextVariables>`
+```dart
+/// Result of an Operation Request (query/mutation).
+class OperationResult<Data, Variables> {
+  OperationResult(this.dataConnect, this.data, this.ref);
+  Data data;
+  OperationRef<Data, Variables> ref;
+  FirebaseDataConnect dataConnect;
+}
+
+/// Result of a query request. Created to hold extra variables in the future.
+class QueryResult<Data, Variables> extends OperationResult<Data, Variables> {
+  QueryResult(super.dataConnect, super.data, super.ref);
+}
+
+final result = await DefaultConnector.instance.getAiSuggestionContext(
+  userId: userId,
+);
+GetAISuggestionContextData data = result.data;
+final ref = result.ref;
+```
+
+#### Getting the Ref
+Each builder returns an `execute` function, which is a helper function that creates a `Ref` object, and executes the underlying operation.
+An example of how to use the `Ref` object is shown below:
+```dart
+String userId = ...;
+
+final ref = DefaultConnector.instance.getAiSuggestionContext(
+  userId: userId,
+).ref();
+ref.execute();
+
+ref.subscribe(...);
+```
+
 ## Mutations
-This connector does not contain any mutations.
+
+### LogManualSearch
+#### Required Arguments
+```dart
+String userId = ...;
+String queryText = ...;
+Timestamp timestamp = ...;
+DefaultConnector.instance.logManualSearch(
+  userId: userId,
+  queryText: queryText,
+  timestamp: timestamp,
+).execute();
+```
+
+
+
+#### Return Type
+`execute()` returns a `OperationResult<LogManualSearchData, LogManualSearchVariables>`
+```dart
+/// Result of an Operation Request (query/mutation).
+class OperationResult<Data, Variables> {
+  OperationResult(this.dataConnect, this.data, this.ref);
+  Data data;
+  OperationRef<Data, Variables> ref;
+  FirebaseDataConnect dataConnect;
+}
+
+final result = await DefaultConnector.instance.logManualSearch(
+  userId: userId,
+  queryText: queryText,
+  timestamp: timestamp,
+);
+LogManualSearchData data = result.data;
+final ref = result.ref;
+```
+
+#### Getting the Ref
+Each builder returns an `execute` function, which is a helper function that creates a `Ref` object, and executes the underlying operation.
+An example of how to use the `Ref` object is shown below:
+```dart
+String userId = ...;
+String queryText = ...;
+Timestamp timestamp = ...;
+
+final ref = DefaultConnector.instance.logManualSearch(
+  userId: userId,
+  queryText: queryText,
+  timestamp: timestamp,
+).ref();
+ref.execute();
+```
+
+
+### LogAISuggestionClick
+#### Required Arguments
+```dart
+String userId = ...;
+String queryText = ...;
+Timestamp timestamp = ...;
+DefaultConnector.instance.logAiSuggestionClick(
+  userId: userId,
+  queryText: queryText,
+  timestamp: timestamp,
+).execute();
+```
+
+
+
+#### Return Type
+`execute()` returns a `OperationResult<LogAISuggestionClickData, LogAISuggestionClickVariables>`
+```dart
+/// Result of an Operation Request (query/mutation).
+class OperationResult<Data, Variables> {
+  OperationResult(this.dataConnect, this.data, this.ref);
+  Data data;
+  OperationRef<Data, Variables> ref;
+  FirebaseDataConnect dataConnect;
+}
+
+final result = await DefaultConnector.instance.logAiSuggestionClick(
+  userId: userId,
+  queryText: queryText,
+  timestamp: timestamp,
+);
+LogAISuggestionClickData data = result.data;
+final ref = result.ref;
+```
+
+#### Getting the Ref
+Each builder returns an `execute` function, which is a helper function that creates a `Ref` object, and executes the underlying operation.
+An example of how to use the `Ref` object is shown below:
+```dart
+String userId = ...;
+String queryText = ...;
+Timestamp timestamp = ...;
+
+final ref = DefaultConnector.instance.logAiSuggestionClick(
+  userId: userId,
+  queryText: queryText,
+  timestamp: timestamp,
+).ref();
+ref.execute();
+```
+

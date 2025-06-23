@@ -7,9 +7,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/login_page.dart';
 import 'screens/admin_page.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // ✅ Fix: Retain instance so it initializes correctly
   await FirebaseDataConnect.instanceFor(
     connectorConfig: ConnectorConfig(
       'asia-south1',
@@ -18,8 +20,10 @@ void main() async {
     ),
     sdkType: CallerSDKType.generated,
   );
+
   final prefs = await SharedPreferences.getInstance();
   final userType = prefs.getString('usertype');
+
   runApp(TenderIQApp(userType: userType));
 }
 
@@ -33,7 +37,7 @@ class TenderIQApp extends StatelessWidget {
     if (userType == null) {
       homeWidget = const LoginPage();
     } else if (userType == 'admin') {
-      homeWidget = const AdminPage();
+      homeWidget = AdminPage();
     } else {
       homeWidget = MainScreen();
     }

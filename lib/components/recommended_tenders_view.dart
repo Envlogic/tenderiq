@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../generated/default_connector/default.dart';
 import 'tendercard.dart';
 import '../screens/tender_detail.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RecommendedTendersView extends StatefulWidget {
   const RecommendedTendersView({super.key});
@@ -47,26 +48,32 @@ class _RecommendedTendersViewState extends State<RecommendedTendersView> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(child: Text('Error: \\${snapshot.error}'));
+          return Center(child: Text('Error: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text('No recommended tenders found.'));
         }
+
         final tenders = snapshot.data!;
         return ListView.builder(
           itemCount: tenders.length,
           itemBuilder: (context, index) {
             final tender = tenders[index];
+
+            // Format closing date
+            // Format closing date
+            const String closingDateStr = '2025-07-10';
+
             return TenderCard(
               title: tender.title ?? 'No Title',
               categories: tender.tags ?? [],
               location: tender.location ?? '',
               description: tender.workItemDetail?.description ?? '',
-              closingDate: tender.closingDate?.toString() ?? '',
+              closingDate: closingDateStr,
               amount:
                   tender.tenderAmount != null
-                      ? '₹ \\${tender.tenderAmount!.toStringAsFixed(2)}'
+                      ? '₹ ${tender.tenderAmount!.toStringAsFixed(2)}'
                       : '',
-              isFollowing: false, // You can update this if you have follow info
+              isFollowing: false, // Update if follow logic exists
               onFollowPressed: null,
               onTap:
                   () => _openTenderDetail(
