@@ -272,3 +272,60 @@ type Notification @table {
   createdAt: Timestamp!
 }
 
+type TenderBidHistory @table {
+  user: User!
+  company: Company!
+  tender: Tender!
+
+  bidAmount: Float
+  tenderValue: Float
+  submittedAt: Timestamp
+  resultDate: Timestamp
+
+  bidStatus: String!        # "Won", "Lost", "InProgress", "Withdrawn"
+  participationType: String # "Solo", "JV", "Subcontractor"
+
+  remarks: String            # Optional: reason for loss or notes
+  awardValue: Float          # If won
+  workStartDate: Timestamp
+  workEndDate: Timestamp
+
+  bidCategory: String        # "Construction", "IT", etc. → override from Tender if needed
+  tenderRangeBucket: String  # "Below 10L", "10L–1Cr", "1Cr–10Cr", "10Cr+"
+}
+
+type CompanyBidStats @table {
+  company: Company!
+  totalTenders: Int
+  tendersWon: Int
+  winRatePct: Float
+
+  averageTenderValue: Float
+  maxTenderWon: Float
+  averageBidAmount: Float
+
+  topCategories: [String!]
+  activeCategories: [String!]
+  recentTenderRangeBucket: String # e.g., "1Cr–5Cr"
+  lastUpdated: Timestamp
+}
+type CompanyTenderStats @table {
+  company: Company!
+  totalTenders: Int
+  totalValue: Float
+  averageValue: Float
+  lastUpdated: Timestamp
+}
+
+type ManualSearchQuery @table  {
+  user: User!
+  queryText: String!
+  timestamp: Timestamp!
+}
+
+type AiSuggestedQueryClick @table  {
+  user: User!
+  queryText: String!
+  timestamp: Timestamp!
+}
+

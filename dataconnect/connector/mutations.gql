@@ -1,0 +1,17 @@
+mutation LogManualSearch($userId: UUID!, $queryText: String!, $timestamp: Timestamp!) 
+  @auth(level: PUBLIC) {
+  manualSearchQuery_insert(data: {
+    user: { id: $userId },
+    queryText: $queryText,
+    timestamp: $timestamp
+  })
+}
+
+mutation LogAISuggestionClick($userId: UUID!, $queryText: String!, $timestamp: Timestamp!) 
+  @auth(level: PUBLIC) {
+  aiSuggestedQueryClick_insert(data: {
+    user: { id: $userId },
+    queryText: $queryText,
+    timestamp: $timestamp
+  })
+}

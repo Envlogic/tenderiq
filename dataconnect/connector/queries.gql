@@ -225,3 +225,127 @@ query GetTenderDetails($tenderId: UUID!, $docLimit: Int = 10, $docOffset: Int = 
     }
   }
 }
+
+query GetAISearchContext($userId: UUID!, $limit: Int = 25, $offset: Int = 0) @auth(level: PUBLIC) {
+  user(id: $userId) {
+    id
+    fullName
+    email
+    profilePicUrl
+    preferences {
+      preferredCategories
+      preferredLocations
+      notificationEnabled
+      language
+    }
+    activity {
+      tendersFollowed
+      tendersSubmitted
+    }
+    manualSearchQueries_on_user(orderBy: { timestamp: DESC }, limit: 10) {
+      queryText
+      timestamp
+    }
+    aiSuggestedQueryClicks_on_user(orderBy: { timestamp: DESC }, limit: 10) {
+      queryText
+      timestamp
+    }
+  }
+
+  tenders(limit: $limit, offset: $offset, orderBy: { closingDate: ASC }) {
+    id
+    title
+    tags
+    location
+    tenderAmount
+    closingDate
+    tenderCategory: basicDetail {
+      tenderCategory
+    }
+    workItemDetail {
+      title
+      description
+      productCategory
+      contractType
+    }
+    aiRecommendation {
+      fitScore
+      matchingCriteriaSummary
+    }
+    riskAlertFlag {
+      redFlags
+      orangeFlags
+      yellowFlags
+    }
+    organization {
+      name
+    }
+  }
+}
+
+query GetAISuggestionContext($userId: UUID!) @auth(level: PUBLIC) {
+  user(id: $userId) {
+    id
+    fullName
+    email
+    profilePicUrl
+    preferences {
+      preferredCategories
+      preferredLocations
+    }
+    activity {
+      tendersFollowed
+      tendersSubmitted
+    }
+    company {
+      name
+      gstin
+      contactNumber
+      companyBidStatss_on_company {
+        totalTenders
+        tendersWon
+        winRatePct
+        averageTenderValue
+        averageBidAmount
+        topCategories
+        activeCategories
+        recentTenderRangeBucket
+      }
+    }
+    manualSearchQueries_on_user(orderBy: { timestamp: DESC }, limit: 10) {
+      queryText
+      timestamp
+    }
+    aiSuggestedQueryClicks_on_user(orderBy: { timestamp: DESC }, limit: 10) {
+      queryText
+      timestamp
+    }
+  }
+
+  tenderBidHistories(
+    where: { user: { id: { eq: $userId } } }
+    orderBy: { submittedAt: DESC }
+    limit: 10
+  ) {
+    bidAmount
+    tenderValue
+    bidStatus
+    submittedAt
+    participationType
+    remarks
+    tender {
+      id
+      title
+      tags
+      location
+      closingDate
+      basicDetail {
+        tenderCategory
+      }
+      workItemDetail {
+        productCategory
+        description
+      }
+    }
+  }
+}
