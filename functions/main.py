@@ -9,7 +9,7 @@ from firebase_functions import https_fn
 # Gemini Client Setup
 # ──────────────────────────────────────────────
 # client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
-client = genai.Client(api_key="AIzaSyDG0YHMNgitVgkVdmdpYuFHWS_vyVlJOIE")
+client = genai.Client(api_key="")
 
 
 # ──────────────────────────────────────────────
